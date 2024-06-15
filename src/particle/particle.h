@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "vector/vector.h"
 
-constexpr inline float G = -9.8;
+constexpr inline float G = 19.6;
 
 class Particle
 {

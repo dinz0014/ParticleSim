@@ -23,13 +23,15 @@ void ParticleSimApp::Run()
             }
         }
 
-        // float time_elapsed = clock_.restart().asSeconds();
-        // accumulator_ += time_elapsed;
+        float time_elapsed = clock_.restart().asSeconds();
+        accumulator_ += time_elapsed;
+        int iter = 0;
 
-        // while (accumulator_ >= timestep_)
-        // {
-        //     manager_.updateParticles();
-        // }
+        while (accumulator_ >= timestep_ && iter <= 5)
+        {
+            manager_.updateParticles();
+            accumulator_ -= timestep_;
+        }
 
         window.clear();
 

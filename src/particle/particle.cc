@@ -10,6 +10,10 @@ Particle::Particle(const sim::Vec2f &position, float thickness)
 
 void Particle::update(float timestep)
 {
+    sim::Vec2f v_half = velocity_ + 0.5f * timestep * acceleration_;
+    position_ += v_half * timestep;
+    velocity_ += acceleration_ * timestep;
+    shape_.setPosition(position_);
 }
 
 ParticleManager::ParticleManager(float timestep) : timestep_{timestep}
