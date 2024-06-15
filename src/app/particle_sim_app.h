@@ -8,6 +8,12 @@ public:
     void Run();
 
 private:
-    static constexpr int target_fps_ = 100;
+    static constexpr int TARGET_FPS = 100;
+    static constexpr int WINDOW_WIDTH = 800;
+    static constexpr int WINDOW_HEIGHT = 600;
+
+    static constexpr float timestep_ = 1.0f / TARGET_FPS;
+    float accumulator_{0.0f};
+    sf::Clock clock_;
     ParticleManager manager_;
 };

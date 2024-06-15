@@ -1,18 +1,12 @@
 #include "particle_sim_app.h"
 
-ParticleSimApp::ParticleSimApp() : manager_{target_fps_}
+ParticleSimApp::ParticleSimApp() : manager_{timestep_}
 {
 }
 
 void ParticleSimApp::Run()
 {
-    constexpr int WINDOW_WIDTH = 800;
-    constexpr int WINDOW_HEIGHT = 600;
-    constexpr float fps{144.0};
-    constexpr float timestep = 1.0 / fps;
-
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation");
-    std::vector<Particle> particles;
 
     while (window.isOpen())
     {
@@ -28,6 +22,14 @@ void ParticleSimApp::Run()
                 window.draw(particle.shape());
             }
         }
+
+        // float time_elapsed = clock_.restart().asSeconds();
+        // accumulator_ += time_elapsed;
+
+        // while (accumulator_ >= timestep_)
+        // {
+        //     manager_.updateParticles();
+        // }
 
         window.clear();
 

@@ -7,3 +7,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(src/particle)
 add_subdirectory(src/app)
+add_subdirectory(src/vector)
