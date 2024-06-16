@@ -1,3 +1,4 @@
+#pragma once
 #include "particle/particle.h"
 #include <SFML/Graphics.hpp>
 
@@ -15,5 +16,5 @@ private:
     static constexpr float timestep_ = 1.0f / TARGET_FPS;
     float accumulator_{0.0f};
     sf::Clock clock_;
-    ParticleManager manager_;
+    sim::ParticleManager manager_;
 };

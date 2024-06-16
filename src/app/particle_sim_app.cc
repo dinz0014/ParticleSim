@@ -1,12 +1,13 @@
 #include "particle_sim_app.h"
 
-ParticleSimApp::ParticleSimApp() : manager_{timestep_}
+ParticleSimApp::ParticleSimApp()
+    : manager_{timestep_, WINDOW_HEIGHT, WINDOW_WIDTH}
 {
 }
 
 void ParticleSimApp::Run()
 {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation", sf::Style::Titlebar | sf::Style::Close);
 
     while (window.isOpen())
     {
@@ -18,7 +19,7 @@ void ParticleSimApp::Run()
 
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                const auto &particle = manager_.CreateParticleAtCursor(event.mouseButton);
+                const auto& particle = manager_.createParticleAtCursor(event.mouseButton);
                 window.draw(particle.shape());
             }
         }
@@ -35,9 +36,12 @@ void ParticleSimApp::Run()
 
         window.clear();
 
-        for (const auto &particle : manager_.particles())
+        for (const auto& region : manager_.particles())
         {
-            window.draw(particle->shape());
+            for (const auto& particle : region)
+            {
+                window.draw(particle->shape());
+            }
         }
 
         window.display();
