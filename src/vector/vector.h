@@ -28,6 +28,11 @@ public:
         return Vec2d(this->x - other.x, this->y - other.y);
     }
 
+    Vec2d operator-() const
+    {
+        return Vec2d(-1 * this->x, -1 * this->y);
+    }
+
     // Scalar Multiplication
     Vec2d operator*(T multiplier) const
     {
@@ -130,7 +135,7 @@ public:
         this->y = std::clamp(this->y, y_min, y_max);
     }
 
-    float magnitude()
+    float magnitude() const
     {
         return std::sqrt(this->x * this->x + this->y * this->y);
     }
@@ -140,5 +145,11 @@ private:
 
 using Vec2f = Vec2d<float>;
 using Vec2i = Vec2d<int>;
+
+template <typename T>
+T vec_dot(Vec2d<T> first, Vec2d<T> second)
+{
+    return first.x * second.x + first.y * second.y;
+}
 
 }

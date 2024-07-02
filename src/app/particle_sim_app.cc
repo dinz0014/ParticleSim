@@ -59,9 +59,8 @@ void ParticleSimApp::Run()
 
         float time_elapsed = clock_.restart().asSeconds();
         accumulator_ += time_elapsed;
-        int iter = 0;
 
-        while (accumulator_ >= timestep_ && iter <= 5)
+        while (accumulator_ >= timestep_)
         {
             manager_.updateParticles();
             accumulator_ -= timestep_;
@@ -74,7 +73,7 @@ void ParticleSimApp::Run()
             window.draw(particle.shape());
         }
 
-        drawGrid(window);
+        // drawGrid(window);
 
         window.display();
     }

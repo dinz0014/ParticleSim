@@ -39,7 +39,7 @@ public:
         return shape_;
     }
 
-    const sim::Vec2f& position() const
+    sim::Vec2f& position()
     {
         return position_;
     }
@@ -49,19 +49,21 @@ public:
         return acceleration_;
     }
 
-        const sim::Vec2f& velocity() const
+    const sim::Vec2f& velocity() const
     {
         return velocity_;
     }
 
     void rebound(int axis);
 
-    float distanceFrom(Particle& other);
-
     void setPosition(const sim::Vec2f& new_position)
     {
         position_ = new_position;
-        shape_.setPosition(position_);
+    }
+
+    void setAcceleration(const sim::Vec2f& accel)
+    {
+        acceleration_ = accel;
     }
 
     void setRegion(int region)
@@ -89,6 +91,11 @@ public:
         velocity_ = new_velocity;
     }
 
+    void changeVelocity(const sim::Vec2f& delta_vel)
+    {
+        velocity_ += delta_vel;
+    }
+
     float mass() const
     {
         return mass_;
@@ -101,6 +108,7 @@ public:
 
 protected:
     sim::Vec2f position_;
+    sim::Vec2f prev_position_;
     sim::Vec2f acceleration_;
     sim::Vec2f velocity_;
     float radius_;
@@ -115,16 +123,17 @@ class ParticleManager
 {
 public:
     static constexpr int GRID_SIZE = 8;
-    static constexpr int MAX_PER_CELL = 1000;
+    static constexpr int MAX_PER_CELL = 5;
 
     using ParticleStore = std::array<std::unique_ptr<Particle>, GRID_SIZE * GRID_SIZE * MAX_PER_CELL>;
 
     ParticleManager(float timestep, int window_height, int window_width);
 
     const Particle& createParticleAtCursor(const sf::Event::MouseButtonEvent& mouse_event);
-    void resolveOutOfBounds(Particle& particle, sim::Vec2f& new_pos);
+    void resolveOutOfBounds(Particle& particle);
     void resolveCollisions(Particle& particle);
     void updateParticles();
+    void updateGrid();
 
     const ParticleStore& particles() const;
 
