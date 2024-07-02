@@ -1,4 +1,7 @@
 #pragma once
+#include <array>
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <tuple>
 #include <unordered_set>
@@ -7,8 +10,11 @@
 
 namespace sim {
 
+class ParticleStore;
+
 constexpr inline float G = 800.0;
 constexpr inline float DAMPING_CONSTANT = 0.85;
+constexpr inline float restitution_coeff = 0.9;
 constexpr inline float epsilon = 6.0;
 
 class Particle
@@ -16,7 +22,7 @@ class Particle
 public:
     static int nextID;
 
-    Particle(const sim::Vec2f& position, float radius = 10.0f);
+    Particle(const sim::Vec2f& position, int grid_loc, float radius = 10.0f);
 
     // It doesn't make sense to copy/move particles to other particles
     Particle(const Particle& other) = delete;
@@ -33,35 +39,24 @@ public:
         return shape_;
     }
 
-    const sim::Vec2f& acceleration() const
-    {
-        return acceleration_;
-    }
-
-    const sim::Vec2f& velocity() const
-    {
-        return velocity_;
-    }
-
     const sim::Vec2f& position() const
     {
         return position_;
     }
 
-    void rebound(int axis)
+    const sim::Vec2f& acceleration() const
     {
-        const float delta = std::abs(velocity_[axis] - velocity_[axis] * DAMPING_CONSTANT);
-        if (delta > epsilon)
-        {
-            velocity_.reflect(axis);
-            velocity_.dilate(axis, DAMPING_CONSTANT);
-        }
-        else
-        {
-            velocity_[axis] = 0;
-            acceleration_[axis] = 0;
-        }
+        return acceleration_;
     }
+
+        const sim::Vec2f& velocity() const
+    {
+        return velocity_;
+    }
+
+    void rebound(int axis);
+
+    float distanceFrom(Particle& other);
 
     void setPosition(const sim::Vec2f& new_position)
     {
@@ -69,14 +64,14 @@ public:
         shape_.setPosition(position_);
     }
 
-    void setGridLocation(int cell_no)
+    void setRegion(int region)
     {
-        grid_location_ = cell_no;
+        region_ = region;
     }
 
-    int gridLocation() const
+    int region() const
     {
-        return grid_location_;
+        return region_;
     }
 
     float radius() const
@@ -89,6 +84,16 @@ public:
         return id_;
     }
 
+    void setVelocity(const sim::Vec2f& new_velocity)
+    {
+        velocity_ = new_velocity;
+    }
+
+    float mass() const
+    {
+        return mass_;
+    }
+
     bool operator==(const Particle& other) const
     {
         return id_ == other.id();
@@ -99,7 +104,8 @@ protected:
     sim::Vec2f acceleration_;
     sim::Vec2f velocity_;
     float radius_;
-    int grid_location_;
+    float mass_;
+    int region_;
     int id_;
 
     sf::CircleShape shape_;
@@ -108,26 +114,41 @@ protected:
 class ParticleManager
 {
 public:
-    static constexpr int SPATIAL_GRID_SIZE = 16;
+    static constexpr int GRID_SIZE = 8;
+    static constexpr int MAX_PER_CELL = 1000;
 
-    using ParticleStore = std::vector<std::unordered_set<std::unique_ptr<Particle>>>;
+    using ParticleStore = std::array<std::unique_ptr<Particle>, GRID_SIZE * GRID_SIZE * MAX_PER_CELL>;
 
     ParticleManager(float timestep, int window_height, int window_width);
 
     const Particle& createParticleAtCursor(const sf::Event::MouseButtonEvent& mouse_event);
-    void handleCollisions(Particle& particle, sim::Vec2f& new_pos);
+    void resolveOutOfBounds(Particle& particle, sim::Vec2f& new_pos);
+    void resolveCollisions(Particle& particle);
     void updateParticles();
 
     const ParticleStore& particles() const;
 
 private:
-    int computeSpatialGridLocation(const sim::Vec2f& particle);
+    int computeRegion(const sim::Vec2f& position);
+    int computeFlattenedLocation(const sim::Vec2f& position);
 
     ParticleStore particle_store_;
 
     float timestep_{0.0f};
     int window_height_;
     int window_width_;
+
+    std::array<int, 9> neighbour_offsets_ = {
+        -GRID_SIZE - 1,
+            -GRID_SIZE,
+        -GRID_SIZE + 1,
+                    -1,
+                     0,
+                     1,
+         GRID_SIZE - 1,
+             GRID_SIZE,
+         GRID_SIZE + 1,
+    };
 };
 
 }
