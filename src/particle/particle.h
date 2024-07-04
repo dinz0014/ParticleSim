@@ -14,13 +14,16 @@ class ParticleStore;
 
 constexpr inline float G = 800.0;
 constexpr inline float DAMPING_CONSTANT = 0.85;
-constexpr inline float restitution_coeff = 0.9;
 constexpr inline float epsilon = 6.0;
+constexpr inline float MAX_VEL = 450.0f;
 
 class Particle
 {
 public:
     static int nextID;
+    static const sf::Color slowColour;
+    static const sf::Color fastColour;
+    static const sf::Color midColour;
 
     Particle(const sim::Vec2f& position, int grid_loc, float radius = 10.0f);
 
@@ -86,14 +89,11 @@ public:
         return id_;
     }
 
-    void setVelocity(const sim::Vec2f& new_velocity)
-    {
-        velocity_ = new_velocity;
-    }
+    void setVelocity(sim::Vec2f new_velocity);
 
     void changeVelocity(const sim::Vec2f& delta_vel)
     {
-        velocity_ += delta_vel;
+        setVelocity(velocity_ + delta_vel);
     }
 
     float mass() const
@@ -117,6 +117,9 @@ protected:
     int id_;
 
     sf::CircleShape shape_;
+
+private:
+    sf::Color computeFillColour();
 };
 
 class ParticleManager
