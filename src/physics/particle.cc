@@ -2,15 +2,14 @@
 #include <algorithm>
 #include <ranges>
 
-#include "utils/utils.h"
-
+#include "common/utils.h"
 #include "particle.h"
 
 namespace sim {
 
 int Particle::nextID = 0;
 
-Particle::Particle(const sim::Vec2f& position, int region, float radius)
+Particle::Particle(const Vec2f& position, int region, float radius)
     : position_{position}
     , acceleration_{0, G}
     , radius_{radius}
@@ -19,15 +18,15 @@ Particle::Particle(const sim::Vec2f& position, int region, float radius)
 {
 }
 
-void Particle::setVelocity(sim::Vec2f new_velocity)
+void Particle::setVelocity(Vec2f new_velocity)
 {
     new_velocity.clamp({-MAX_VEL, MAX_VEL}, {-MAX_VEL, MAX_VEL});
     velocity_ = new_velocity;
 }
 
-const sim::Vec2f& Particle::nextPosition(float timestep)
+const Vec2f& Particle::nextPosition(float timestep)
 {
-    sim::Vec2f v_half = velocity_ + 0.5f * timestep * acceleration_;
+    Vec2f v_half = velocity_ + 0.5f * timestep * acceleration_;
     changeVelocity(acceleration_ * timestep);
     position_ += v_half * timestep;
     return position();
@@ -36,7 +35,7 @@ const sim::Vec2f& Particle::nextPosition(float timestep)
 void Particle::rebound(int axis)
 {
     const float delta = std::abs(velocity_[axis] - velocity_[axis] * DAMPING_CONSTANT);
-    if (delta > epsilon)
+    if (delta > 6.0f)
     {
         velocity_.reflect(axis);
         velocity_.dilate(axis, DAMPING_CONSTANT);
@@ -48,31 +47,26 @@ void Particle::rebound(int axis)
     }
 }
 
-void Particle::move(const sim::Vec2f& pos_delta)
+void Particle::move(const Vec2f& pos_delta)
 {
     position_ += pos_delta;
 }
 
-ParticleManager::ParticleManager(float timestep, int window_height, int window_width)
+ParticleManager::ParticleManager(float timestep, Container& container)
     : timestep_{timestep}
-    , window_height_{window_height}
-    , window_width_{window_width}
+    , container_{container}
 {
 }
 
-const Particle& ParticleManager::createParticleAtCursor(const sf::Event::MouseButtonEvent& mouse_event)
+const Particle& ParticleManager::createParticleAtCursor(float x, float y)
 {
-    auto x = static_cast<float>(mouse_event.x);
-    auto y = static_cast<float>(mouse_event.y);
     const float radius = 10.0f;
-
-    const float x_min = radius;
-    const float x_max = window_width_ -  radius;
-    const float y_min = radius;
-    const float y_max = window_height_ - radius;
+    const auto& [x_bounds, y_bounds] = container_.getBounds(radius);
+    const auto& [x_min, x_max] = x_bounds;
+    const auto& [y_min, y_max] = y_bounds;
 
 
-    sim::Vec2f position{x, y};
+    Vec2f position{x, y};
     position.clamp({x_min, x_max}, {y_min, y_max});
 
     // We maintain a spatial grid and particles inside it for easier collision handling
@@ -84,14 +78,18 @@ const Particle& ParticleManager::createParticleAtCursor(const sf::Event::MouseBu
     return *particle_store_[cell];
 }
 
-int ParticleManager::computeRegion(const sim::Vec2f& position)
+int ParticleManager::computeRegion(const Vec2f& position)
 {
-    const auto hash_row = int(position.y / (window_height_ / GRID_SIZE));
-    const auto hash_col = int(position.x / (window_width_ / GRID_SIZE));
+    const auto& [x_bounds, y_bounds] = container_.getBounds();
+    const auto& [x_min, x_max] = x_bounds;
+    const auto& [y_min, y_max] = y_bounds;
+
+    const auto hash_row = int((position.y - y_min) / (container_.getHeight() / GRID_SIZE));
+    const auto hash_col = int((position.x - x_min) / (container_.getWidth() / GRID_SIZE));
     return hash_row * GRID_SIZE + hash_col;
 }
 
-int ParticleManager::computeFlattenedLocation(const sim::Vec2f& position)
+int ParticleManager::computeFlattenedLocation(const Vec2f& position)
 {
     const auto region_start = computeRegion(position) * MAX_PER_CELL;
 
@@ -109,7 +107,7 @@ void ParticleManager::updateParticles()
 {
     for (auto& particle : deref_non_null_view(particle_store_))
     {
-        particle.setAcceleration(sim::Vec2f{0, G});
+        particle.setAcceleration(Vec2f{0, G});
         particle.nextPosition(timestep_);
         resolveOutOfBounds(particle);
 
@@ -143,10 +141,11 @@ void ParticleManager::resolveOutOfBounds(Particle& particle)
     // Window Bound Checking
     auto& pos = particle.position();
     const float radius = particle.radius();
-    const float x_min = radius;
-    const float x_max = window_width_ -  radius;
-    const float y_min = radius;
-    const float y_max = window_height_ - radius;
+
+    // Container is centered, so we add/subtract half the size to get bounds
+    const auto& [x_bounds, y_bounds] = container_.getBounds(radius);
+    const auto& [x_min, x_max] = x_bounds;
+    const auto& [y_min, y_max] = y_bounds;
 
     if (pos.x < x_min || pos.x > x_max)
     {
@@ -187,13 +186,13 @@ void ParticleManager::resolveCollisions(Particle& particle)
             }
 
             const auto dist = std::sqrt(dist2);
-            sim::Vec2f norm = axis / dist;
+            Vec2f norm = axis / dist;
             const float delta = 0.5 * std::abs(dist - min_dist);
             particle.move(norm * delta);
             neighbour.move(norm * -delta);
 
             // Assuming mass is equal
-            sim::Vec2f delta_vel = vec_dot(norm, particle.velocity() - neighbour.velocity()) * norm ;
+            Vec2f delta_vel = vec_dot(norm, particle.velocity() - neighbour.velocity()) * norm ;
             particle.changeVelocity(-delta_vel);
             neighbour.changeVelocity(delta_vel);
         }

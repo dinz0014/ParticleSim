@@ -1,21 +1,16 @@
 #pragma once
 #include <array>
-#include <algorithm>
-#include <cmath>
 #include <memory>
-#include <tuple>
-#include <unordered_set>
 #include <SFML/Graphics.hpp>
-#include "vector/vector.h"
+
+#include "common/constants.h"
+#include "common/vector.h"
+
+#include "container.h"
 
 namespace sim {
 
 class ParticleStore;
-
-constexpr inline float G = 800.0;
-constexpr inline float DAMPING_CONSTANT = 0.85;
-constexpr inline float epsilon = 6.0;
-constexpr inline float MAX_VEL = 450.0f;
 
 class Particle
 {
@@ -125,9 +120,10 @@ public:
 
     using ParticleStore = std::array<std::unique_ptr<Particle>, GRID_SIZE * GRID_SIZE * MAX_PER_CELL>;
 
-    ParticleManager(float timestep, int window_height, int window_width);
+    ParticleManager(float timestep, Container& container);
 
-    const Particle& createParticleAtCursor(const sf::Event::MouseButtonEvent& mouse_event);
+    const Particle& createParticleAtCursor(float x, float y);
+
     void resolveOutOfBounds(Particle& particle);
     void resolveCollisions(Particle& particle);
     void updateParticles();
@@ -139,11 +135,13 @@ private:
     int computeRegion(const Vec2f& position);
     int computeFlattenedLocation(const Vec2f& position);
 
+    using BoundsType = std::pair<Vec2f, Vec2f>;
+    BoundsType getMinMaxBounds();
+
     ParticleStore particle_store_;
 
     float timestep_{0.0f};
-    int window_height_;
-    int window_width_;
+    Container& container_;
 
     std::array<int, 9> neighbour_offsets_ = {
         -GRID_SIZE - 1,
