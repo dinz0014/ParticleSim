@@ -9,9 +9,6 @@
 namespace sim {
 
 int Particle::nextID = 0;
-const sf::Color Particle::slowColour = sf::Color::Cyan;
-const sf::Color Particle::fastColour = sf::Color::Magenta;
-const sf::Color Particle::midColour = sf::Color(173, 255, 47); // Pastel Green
 
 Particle::Particle(const sim::Vec2f& position, int region, float radius)
     : position_{position}
@@ -20,47 +17,12 @@ Particle::Particle(const sim::Vec2f& position, int region, float radius)
     , region_{region}
     , id_{nextID++}
 {
-    shape_ = sf::CircleShape{radius};
-    shape_.setFillColor(sf::Color::Cyan);
-    shape_.setOrigin(radius, radius);
-    shape_.setPosition(position);
 }
 
 void Particle::setVelocity(sim::Vec2f new_velocity)
 {
     new_velocity.clamp({-MAX_VEL, MAX_VEL}, {-MAX_VEL, MAX_VEL});
     velocity_ = new_velocity;
-    shape_.setFillColor(computeFillColour());
-}
-
-sf::Color Particle::computeFillColour()
-{
-    const auto normalised_speed = std::clamp(vec_dot(velocity_, velocity_) / (MAX_VEL * MAX_VEL), 0.0f, 1.0f);
-
-    auto interpolate_colour = [](float start, float end, float val)
-    {
-        return static_cast<sf::Uint8>(start + val * (end - start));
-    };
-
-    auto final_colour = [&](sf::Color start_colour, sf::Color end_colour)
-    {
-        return sf::Color(
-            interpolate_colour(start_colour.r, end_colour.r, normalised_speed),
-            interpolate_colour(start_colour.g, end_colour.g, normalised_speed),
-            interpolate_colour(start_colour.b, end_colour.b, normalised_speed)
-        );
-    };
-
-    sf::Color curr_colour = shape_.getFillColor();
-
-    if (normalised_speed < 0.5f)
-    {
-        return final_colour(slowColour, midColour);
-    }
-    else
-    {
-        return final_colour(midColour, fastColour);
-    }
 }
 
 const sim::Vec2f& Particle::nextPosition(float timestep)
@@ -68,7 +30,6 @@ const sim::Vec2f& Particle::nextPosition(float timestep)
     sim::Vec2f v_half = velocity_ + 0.5f * timestep * acceleration_;
     changeVelocity(acceleration_ * timestep);
     position_ += v_half * timestep;
-    shape_.setPosition(position_);
     return position();
 }
 
@@ -85,8 +46,6 @@ void Particle::rebound(int axis)
         velocity_[axis] = 0;
         acceleration_[axis] = 0;
     }
-
-    shape_.setFillColor(computeFillColour());
 }
 
 void Particle::move(const sim::Vec2f& pos_delta)

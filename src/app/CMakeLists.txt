@@ -1,7 +1,10 @@
-add_executable(ParticleSimulation main.cc particle_sim_app.cc)
+file(GLOB SOURCES *.cc)
+file(GLOB HEADERS *.h)
 
-target_include_directories(ParticleSimulation PUBLIC
+add_executable(ParticleSimulation ${SOURCES} ${HEADERS})
+
+target_include_directories(ParticleSimulation PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
 
-target_link_libraries(ParticleSimulation PUBLIC particle sfml-system sfml-window sfml-graphics)
+target_link_libraries(ParticleSimulation PRIVATE particle sfml-system sfml-window sfml-graphics)

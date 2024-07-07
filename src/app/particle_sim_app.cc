@@ -1,5 +1,6 @@
 #include "utils/utils.h"
 #include "particle_sim_app.h"
+#include "particle/renderer.h"
 
 ParticleSimApp::ParticleSimApp()
     : manager_{timestep_, WINDOW_HEIGHT, WINDOW_WIDTH}
@@ -41,6 +42,7 @@ void ParticleSimApp::drawGrid(sf::RenderWindow& window)
 void ParticleSimApp::Run()
 {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation", sf::Style::Titlebar | sf::Style::Close);
+    sim::ParticleRenderer renderer(window);
 
     while (window.isOpen())
     {
@@ -53,7 +55,7 @@ void ParticleSimApp::Run()
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
                 const auto& particle = manager_.createParticleAtCursor(event.mouseButton);
-                window.draw(particle.shape());
+                renderer.drawParticle(particle);
             }
         }
 
@@ -70,7 +72,7 @@ void ParticleSimApp::Run()
 
         for (const auto& particle : deref_non_null_view(manager_.particles()))
         {
-            window.draw(particle.shape());
+            renderer.drawParticle(particle);
         }
 
         // drawGrid(window);

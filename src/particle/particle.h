@@ -25,7 +25,7 @@ public:
     static const sf::Color fastColour;
     static const sf::Color midColour;
 
-    Particle(const sim::Vec2f& position, int grid_loc, float radius = 10.0f);
+    Particle(const Vec2f& position, int grid_loc, float radius = 10.0f);
 
     // It doesn't make sense to copy/move particles to other particles
     Particle(const Particle& other) = delete;
@@ -33,38 +33,38 @@ public:
     Particle(Particle&& other) noexcept = delete;
     Particle& operator=(Particle&& other) = delete;
 
-    const sim::Vec2f& nextPosition(float timestep);
+    const Vec2f& nextPosition(float timestep);
 
-    void move(const sim::Vec2f& pos_delta);
+    void move(const Vec2f& pos_delta);
 
-    const sf::CircleShape& shape() const
-    {
-        return shape_;
-    }
-
-    sim::Vec2f& position()
+    const Vec2f& position() const
     {
         return position_;
     }
 
-    const sim::Vec2f& acceleration() const
+    Vec2f& position()
+    {
+        return position_;
+    }
+
+    const Vec2f& acceleration() const
     {
         return acceleration_;
     }
 
-    const sim::Vec2f& velocity() const
+    const Vec2f& velocity() const
     {
         return velocity_;
     }
 
     void rebound(int axis);
 
-    void setPosition(const sim::Vec2f& new_position)
+    void setPosition(const Vec2f& new_position)
     {
         position_ = new_position;
     }
 
-    void setAcceleration(const sim::Vec2f& accel)
+    void setAcceleration(const Vec2f& accel)
     {
         acceleration_ = accel;
     }
@@ -89,9 +89,9 @@ public:
         return id_;
     }
 
-    void setVelocity(sim::Vec2f new_velocity);
+    void setVelocity(Vec2f new_velocity);
 
-    void changeVelocity(const sim::Vec2f& delta_vel)
+    void changeVelocity(const Vec2f& delta_vel)
     {
         setVelocity(velocity_ + delta_vel);
     }
@@ -106,20 +106,15 @@ public:
         return id_ == other.id();
     }
 
-protected:
-    sim::Vec2f position_;
-    sim::Vec2f prev_position_;
-    sim::Vec2f acceleration_;
-    sim::Vec2f velocity_;
+private:
+    Vec2f position_;
+    Vec2f prev_position_;
+    Vec2f acceleration_;
+    Vec2f velocity_;
     float radius_;
     float mass_;
     int region_;
     int id_;
-
-    sf::CircleShape shape_;
-
-private:
-    sf::Color computeFillColour();
 };
 
 class ParticleManager
@@ -141,8 +136,8 @@ public:
     const ParticleStore& particles() const;
 
 private:
-    int computeRegion(const sim::Vec2f& position);
-    int computeFlattenedLocation(const sim::Vec2f& position);
+    int computeRegion(const Vec2f& position);
+    int computeFlattenedLocation(const Vec2f& position);
 
     ParticleStore particle_store_;
 
