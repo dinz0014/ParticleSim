@@ -14,7 +14,7 @@ private:
     static constexpr int WINDOW_WIDTH = 1920;
     static constexpr int WINDOW_HEIGHT = 1080;
 
-    static constexpr float timestep_ = 1.0f / TARGET_FPS;
-    float accumulator_{0.0f};
-    sf::Clock clock_;
+    static constexpr float TIMESTEP = 1.0f / TARGET_FPS;
+    static constexpr uint8_t SUBSTEPS = 8;
+    static constexpr float dt = TIMESTEP / static_cast<float>(SUBSTEPS);
 };
