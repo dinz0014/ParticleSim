@@ -11,8 +11,16 @@ class Vec2d : public sf::Vector2<T>
 {
 public:
     // Constructors
-    Vec2d(T x = 0, T y = 0) : sf::Vector2<T>(x, y) {}
+    Vec2d(T x_val = 0, T y_val = 0) : sf::Vector2<T>(x_val, y_val) {}
     Vec2d(const sf::Vector2<T>& v) : sf::Vector2<T>(v) {}
+
+    template <typename OtherT>
+    static Vec2d<T> from(const sf::Vector2<OtherT>& v)
+    {
+        T x = static_cast<T>(v.x);
+        T y = static_cast<T>(v.y);
+        return Vec2d(x, y);
+    }
 
     using MinMaxLimits = std::pair<T, T>;
 
@@ -145,11 +153,25 @@ private:
 
 using Vec2f = Vec2d<float>;
 using Vec2i = Vec2d<int>;
+using Vec2u = Vec2d<unsigned int>;
 
 template <typename T>
 T vec_dot(Vec2d<T> first, Vec2d<T> second)
 {
     return first.x * second.x + first.y * second.y;
+}
+
+template <typename T>
+void assign_piecewise(Vec2d<T> vec, T& first, T& second)
+{
+    first = vec.x;
+    second = vec.y;
+}
+
+template <typename T>
+Vec2d<T> midpoint(Vec2d<T> first, Vec2d<T> second)
+{
+    return ( first + second ) / 2.0f;
 }
 
 }

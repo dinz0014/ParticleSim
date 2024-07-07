@@ -7,4 +7,9 @@ target_include_directories(ParticleSimulation PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
 
-target_link_libraries(ParticleSimulation PRIVATE particle sfml-system sfml-window sfml-graphics)
+target_link_libraries(ParticleSimulation PRIVATE
+                        sfml-system
+                        sfml-window
+                        sfml-graphics
+                        physics
+                        render)

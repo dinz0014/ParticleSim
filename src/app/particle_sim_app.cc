@@ -1,11 +1,6 @@
-#include "utils/utils.h"
+#include "common/utils.h"
+#include "render/renderer.h"
 #include "particle_sim_app.h"
-#include "particle/renderer.h"
-
-ParticleSimApp::ParticleSimApp()
-    : manager_{timestep_, WINDOW_HEIGHT, WINDOW_WIDTH}
-{
-}
 
 void ParticleSimApp::drawGrid(sf::RenderWindow& window)
 {
@@ -41,8 +36,13 @@ void ParticleSimApp::drawGrid(sf::RenderWindow& window)
 
 void ParticleSimApp::Run()
 {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation", sf::Style::Titlebar | sf::Style::Close);
-    sim::ParticleRenderer renderer(window);
+    sf::RenderWindow window{sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation", sf::Style::Titlebar | sf::Style::Close};
+    sim::Container container{WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+    sim::Renderer renderer{window};
+    sim::ParticleManager manager{timestep_, container};
+
+    // Center the container
+    container.centerInside({0.0f, static_cast<float>(WINDOW_WIDTH)}, {0.0f, static_cast<float>(WINDOW_HEIGHT)});
 
     while (window.isOpen())
     {
@@ -54,8 +54,22 @@ void ParticleSimApp::Run()
 
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                const auto& particle = manager_.createParticleAtCursor(event.mouseButton);
-                renderer.drawParticle(particle);
+                float x = event.mouseButton.x;
+                float y = event.mouseButton.y;
+
+                if (container.intersects(x, y))
+                {
+                    const auto& particle = manager.createParticleAtCursor(x, y);
+                    renderer.drawParticle(particle);
+                }
+            }
+
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.control)
+                {
+                    container.handleResize(event.key);
+                }
             }
         }
 
@@ -64,13 +78,15 @@ void ParticleSimApp::Run()
 
         while (accumulator_ >= timestep_)
         {
-            manager_.updateParticles();
+            manager.updateParticles();
             accumulator_ -= timestep_;
         }
 
         window.clear();
 
-        for (const auto& particle : deref_non_null_view(manager_.particles()))
+        renderer.drawContainer(container);
+
+        for (const auto& particle : deref_non_null_view(manager.particles()))
         {
             renderer.drawParticle(particle);
         }
