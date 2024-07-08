@@ -16,6 +16,7 @@ void ParticleSimApp::Run()
     sim::ParticleManager manager{container};
 
     window.setFramerateLimit(TARGET_FPS);
+    bool left_mouse_held = false;
 
     while (window.isOpen())
     {
@@ -27,14 +28,12 @@ void ParticleSimApp::Run()
 
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                float x = event.mouseButton.x;
-                float y = event.mouseButton.y;
+                left_mouse_held = true;
+            }
 
-                if (container.intersects(x, y))
-                {
-                    const auto& particle = manager.createParticleAtCursor(x, y);
-                    renderer.drawParticle(particle);
-                }
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
+            {
+                left_mouse_held = false;
             }
 
             if (event.type == sf::Event::KeyPressed)
@@ -43,6 +42,17 @@ void ParticleSimApp::Run()
                 {
                     container.handleResize(event.key);
                 }
+            }
+        }
+
+        if (left_mouse_held)
+        {
+            auto [x, y] = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+            if (container.intersects(x, y))
+            {
+                const auto& particle = manager.createParticleAtCursor(x, y);
+                renderer.drawParticle(particle);
             }
         }
 
