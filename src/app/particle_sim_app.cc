@@ -8,11 +8,12 @@ void ParticleSimApp::Run()
 {
     sf::RenderWindow window{sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulation", sf::Style::Titlebar | sf::Style::Close};
     sim::Container container{WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
-    sim::Renderer renderer{window};
-    sim::ParticleManager manager{container};
 
     // Center the container
     container.centerInside({0.0f, static_cast<float>(WINDOW_WIDTH)}, {0.0f, static_cast<float>(WINDOW_HEIGHT)});
+
+    sim::Renderer renderer{window};
+    sim::ParticleManager manager{container};
 
     window.setFramerateLimit(TARGET_FPS);
 
@@ -24,7 +25,7 @@ void ParticleSimApp::Run()
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 float x = event.mouseButton.x;
                 float y = event.mouseButton.y;
@@ -54,7 +55,7 @@ void ParticleSimApp::Run()
 
         renderer.drawContainer(container);
 
-        for (const auto& particle : deref_non_null_view(manager.particles()))
+        for (const auto& particle : manager.particles())
         {
             renderer.drawParticle(particle);
         }

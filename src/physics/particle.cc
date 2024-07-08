@@ -2,18 +2,16 @@
 #include <algorithm>
 #include <ranges>
 
-#include "common/utils.h"
 #include "particle.h"
 
 namespace sim {
 
 int Particle::nextID = 0;
 
-Particle::Particle(const Vec2f& position, int region, float radius)
+Particle::Particle(const Vec2f& position, float radius)
     : position_{position}
     , acceleration_{0, G}
     , radius_{radius}
-    , region_{region}
     , id_{nextID++}
 {
 }
