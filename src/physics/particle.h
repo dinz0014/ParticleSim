@@ -18,13 +18,9 @@ public:
     static const sf::Color fastColour;
     static const sf::Color midColour;
 
-    Particle(const Vec2f& position, int grid_loc, float radius = 10.0f);
+    using id_type = uint16_t;
 
-    // It doesn't make sense to copy/move particles to other particles
-    Particle(const Particle& other) = delete;
-    Particle& operator=(const Particle& other) = delete;
-    Particle(Particle&& other) noexcept = delete;
-    Particle& operator=(Particle&& other) = delete;
+    Particle(const Vec2f& position, float radius = 10.0f);
 
     const Vec2f& nextPosition(float timestep);
 
@@ -62,12 +58,12 @@ public:
         acceleration_ = accel;
     }
 
-    void setRegion(int region)
+    void setRegion(const Vec2i& region)
     {
         region_ = region;
     }
 
-    int region() const
+    const Vec2i& region() const
     {
         return region_;
     }
@@ -106,7 +102,7 @@ private:
     Vec2f velocity_;
     float radius_;
     float mass_;
-    int region_;
+    Vec2i region_;
     int id_;
 };
 

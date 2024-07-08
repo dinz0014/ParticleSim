@@ -1,16 +1,11 @@
 #pragma once
-#include <ranges>
+#include <random>
 
-template <typename Range>
-auto non_null_view(Range&& range)
+inline float generateRandomFloat(float min, float max)
 {
-    return range
-           | std::views::filter([](const auto& p) { return p != nullptr; });
-}
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
-template <typename Range>
-auto deref_non_null_view(Range&& range)
-{
-    return non_null_view(range)
-           | std::views::transform([](const auto& p) -> decltype(auto) { return *p; });
+    std::uniform_real_distribution<float> dis(min, max);
+    return dis(gen);
 }

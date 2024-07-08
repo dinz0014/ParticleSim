@@ -2,16 +2,14 @@
 #include <array>
 #include <memory>
 #include "particle.h"
+#include "fixed_grid.h"
 
 namespace sim {
 
 class ParticleManager
 {
 public:
-    static constexpr int GRID_SIZE = 8;
-    static constexpr int MAX_PER_CELL = 5;
-
-    using ParticleStore = std::array<std::unique_ptr<Particle>, GRID_SIZE * GRID_SIZE * MAX_PER_CELL>;
+    using ParticleStore = std::vector<Particle>;
 
     ParticleManager(Container& container);
 
@@ -25,27 +23,12 @@ public:
     const ParticleStore& particles() const;
 
 private:
-    int computeRegion(const Vec2f& position);
-    int computeFlattenedLocation(const Vec2f& position);
-
     using BoundsType = std::pair<Vec2f, Vec2f>;
     BoundsType getMinMaxBounds();
 
-    ParticleStore particle_store_;
-
+    FixedGrid partitioner_;
+    ParticleStore particles_;
     Container& container_;
-
-    std::array<int, 9> neighbour_offsets_ = {
-        -GRID_SIZE - 1,
-            -GRID_SIZE,
-        -GRID_SIZE + 1,
-                    -1,
-                     0,
-                     1,
-         GRID_SIZE - 1,
-             GRID_SIZE,
-         GRID_SIZE + 1,
-    };
 };
 
 }
