@@ -3,20 +3,19 @@
 #include "common/constants.h"
 #include "include/doubly_linked_list.h"
 
-#include "spatial_partitioner.h"
 #include "particle.h"
 
 namespace sim {
 
-class FixedGrid : public SpatialPartitioner<Particle, Particle::id_type>
+class FixedGrid
 {
 public:
     FixedGrid() = default;
     FixedGrid(const Vec2f& top_left, const Vec2f& bottom_right);
 
-    void add(Particle& entity) override;
-    void remove(Particle& entity) override;
-    std::vector<Particle::id_type> getNearby(Particle& entity) override;
+    void add(Particle& entity);
+    void remove(Particle& entity);
+    std::vector<Particle::id_type> getNearby(Particle& entity);
 
 private:
     Vec2i getCell(const Vec2f& position);
