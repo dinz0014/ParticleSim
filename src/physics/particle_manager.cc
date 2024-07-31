@@ -111,4 +111,16 @@ const ParticleManager::ParticleStore& ParticleManager::particles() const
     return particles_;
 }
 
+size_t ParticleManager::particle_count() const
+{
+    return particles_.size();
+}
+
+void ParticleManager::clear()
+{
+    particles_.clear();
+    Particle::nextID = 0;
+    partitioner_.reset();
+}
+
 }

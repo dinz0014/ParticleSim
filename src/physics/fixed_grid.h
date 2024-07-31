@@ -17,6 +17,8 @@ public:
     void remove(Particle& entity);
     std::vector<Particle::id_type> getNearby(Particle& entity);
 
+    void reset();
+
 private:
     Vec2i getCell(const Vec2f& position);
     size_t getIndex(const Vec2i& cell);

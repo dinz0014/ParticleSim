@@ -22,6 +22,9 @@ public:
 
     const ParticleStore& particles() const;
 
+    size_t particle_count() const;
+    void clear();
+
 private:
     using BoundsType = std::pair<Vec2f, Vec2f>;
     BoundsType getMinMaxBounds();

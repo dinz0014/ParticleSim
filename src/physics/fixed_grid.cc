@@ -11,6 +11,14 @@ FixedGrid::FixedGrid(const Vec2f& top_left, const Vec2f& bottom_right)
     grid_.resize(rows_ * cols_);
 }
 
+void FixedGrid::reset()
+{
+    rows_ = ( bottom_right_.y - top_left_.y ) / CELL_SIZE;
+    cols_ = ( bottom_right_.x - top_left_.x ) / CELL_SIZE;
+    grid_.clear();
+    grid_.resize(rows_ * cols_);
+}
+
 Vec2i FixedGrid::getCell(const Vec2f& position)
 {
     const Vec2f rel_pos = position - top_left_;

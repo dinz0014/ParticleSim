@@ -26,6 +26,7 @@ void ParticleSimApp::Run()
             if (event.type == sf::Event::Closed)
                 window.close();
 
+            // Detect dragging
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 left_mouse_held = true;
@@ -36,12 +37,9 @@ void ParticleSimApp::Run()
                 left_mouse_held = false;
             }
 
-            if (event.type == sf::Event::KeyPressed)
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
             {
-                if (event.key.control)
-                {
-                    container.handleResize(event.key);
-                }
+                manager.clear();
             }
         }
 
@@ -69,6 +67,8 @@ void ParticleSimApp::Run()
         {
             renderer.drawParticle(particle);
         }
+
+        window.setTitle("Particles: " + std::to_string(manager.particle_count()));
 
         window.display();
     }
