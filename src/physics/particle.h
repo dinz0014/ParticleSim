@@ -82,7 +82,22 @@ public:
 
     void changeVelocity(const Vec2f& delta_vel)
     {
-        setVelocity(velocity_ + delta_vel);
+        auto [dx, dy] = delta_vel;
+        auto rel_delta = Vec2f{std::abs(dx), std::abs(dy)};
+        rel_delta.x /= std::abs(velocity_.x);
+        rel_delta.y /= std::abs(velocity_.y);
+
+        if (rel_delta.x < 0.001f)
+        {
+            dx = 0.0f;
+        }
+
+        if (rel_delta.y < 0.001f)
+        {
+            dy = 0.0f;
+        }
+
+        setVelocity(velocity_ + Vec2f{dx, dy});
     }
 
     float mass() const

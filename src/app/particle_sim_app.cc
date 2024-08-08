@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "common/utils.h"
 #include "physics/particle_manager.h"
 #include "render/renderer.h"
@@ -68,7 +70,16 @@ void ParticleSimApp::Run()
             renderer.drawParticle(particle);
         }
 
-        window.setTitle("Particles: " + std::to_string(manager.particle_count()));
+        // Set title with particle count and the average speed of the particles
+        const auto count = manager.particle_count();
+        std::string title = "Particles: " + std::to_string(count);
+        title += " | Avg Speed: ";
+
+        auto cumulative_speed = [](double s, const sim::Particle& p) -> double { return s + p.velocity().magnitude(); };
+        const double avg_speed = std::accumulate(manager.particles().begin(), manager.particles().end(), 0.0, cumulative_speed) / static_cast<double>(count);
+        title += std::to_string(std::round(avg_speed * 1000.0) / 1000.0);
+
+        window.setTitle(title);
 
         window.display();
     }

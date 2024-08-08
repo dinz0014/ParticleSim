@@ -27,24 +27,24 @@ const Vec2f& Particle::nextPosition(float timestep)
     Vec2f v_half = velocity_ + 0.5f * timestep * acceleration_;
     changeVelocity(acceleration_ * timestep);
     position_ += v_half * timestep;
+    acceleration_ = {0.0f, 0.0f};
     return position();
 }
 
 void Particle::rebound(int axis)
 {
     const float speed_along_axis = std::abs(velocity_[axis]);
-    const float delta = speed_along_axis * (1 - speed_along_axis);
+    const float delta = speed_along_axis * (1 - DAMP_WALL);
     const float rel_delta = delta / speed_along_axis;
 
-    if (rel_delta > 0.05f)
+    if (rel_delta > 0.01f)
     {
         velocity_.reflect(axis);
-        velocity_.dilate(axis, DAMPING_CONSTANT);
+        velocity_.dilate(axis, DAMP_WALL);
     }
     else
     {
         velocity_[axis] = 0;
-        acceleration_[axis] = 0;
     }
 }
 

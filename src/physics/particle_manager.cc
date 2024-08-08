@@ -15,7 +15,7 @@ ParticleManager::ParticleManager(Container& container)
 
 const Particle& ParticleManager::createParticleAtCursor(float x, float y)
 {
-    const float radius = 5.0f;
+    const float radius = 10.0f;
     const auto& [x_bounds, y_bounds] = container_.getBounds(radius);
     const auto& [x_min, x_max] = x_bounds;
     const auto& [y_min, y_max] = y_bounds;
@@ -100,7 +100,7 @@ void ParticleManager::resolveCollisions(Particle& particle)
         other.move(norm * -delta);
 
         // Assuming mass is equal
-        Vec2f delta_vel = vec_dot(norm, particle.velocity() - other.velocity()) * norm * DAMPING_CONSTANT;
+        Vec2f delta_vel = vec_dot(norm, particle.velocity() - other.velocity()) * norm;
         particle.changeVelocity(-delta_vel);
         other.changeVelocity(delta_vel);
     }
