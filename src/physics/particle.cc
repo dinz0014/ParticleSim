@@ -32,8 +32,11 @@ const Vec2f& Particle::nextPosition(float timestep)
 
 void Particle::rebound(int axis)
 {
-    const float delta = std::abs(velocity_[axis] - velocity_[axis] * DAMPING_CONSTANT);
-    if (delta > 6.0f)
+    const float speed_along_axis = std::abs(velocity_[axis]);
+    const float delta = speed_along_axis * (1 - speed_along_axis);
+    const float rel_delta = delta / speed_along_axis;
+
+    if (rel_delta > 0.05f)
     {
         velocity_.reflect(axis);
         velocity_.dilate(axis, DAMPING_CONSTANT);

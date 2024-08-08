@@ -12,4 +12,5 @@ target_link_libraries(ParticleSimulation PRIVATE
                         sfml-window
                         sfml-graphics
                         physics
-                        render)
+                        render
+                        )

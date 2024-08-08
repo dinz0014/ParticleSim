@@ -29,10 +29,10 @@ private:
     Vec2f top_left_{0.0f, 0.0f};
     Vec2f bottom_right_{0.0f, 0.0f};
 
-    uint8_t rows_{0};
-    uint8_t cols_{0};
+    int rows_{0};
+    int cols_{0};
 
-    static constexpr uint8_t CELL_SIZE = static_cast<uint8_t>(2 * MAX_RADIUS);
+    static constexpr int CELL_SIZE = static_cast<int>(2 * MAX_RADIUS);
 
 };
 
