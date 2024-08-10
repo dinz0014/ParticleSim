@@ -5,6 +5,7 @@ add_executable(ParticleSimulation ${SOURCES} ${HEADERS})
 
 target_include_directories(ParticleSimulation PRIVATE
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/include
 )
 
 target_link_libraries(ParticleSimulation PRIVATE

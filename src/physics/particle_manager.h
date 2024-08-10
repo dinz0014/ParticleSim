@@ -1,17 +1,24 @@
 #pragma once
 #include <array>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include "particle.h"
 #include "fixed_grid.h"
+#include "types.h"
 
 namespace sim {
+
+using json = nlohmann::json;
 
 class ParticleManager
 {
 public:
     using ParticleStore = std::vector<Particle>;
 
-    ParticleManager(Container& container);
+    ParticleManager(const json& cfg, Container& container);
+
+    static ValidationResult ValidateConfig(const json& manager_cfg);
+    void LoadConfig();
 
     const Particle& createParticleAtCursor(float x, float y);
 
@@ -26,12 +33,17 @@ public:
     void clear();
 
 private:
-    using BoundsType = std::pair<Vec2f, Vec2f>;
-    BoundsType getMinMaxBounds();
+    json cfg_;
 
-    FixedGrid partitioner_;
     ParticleStore particles_;
     Container& container_;
+    std::unique_ptr<FixedGrid> grid_;
+
+    float grav_accel_;
+    float particle_radius_;
+    float wall_collision_damping_;
+    float rel_rebound_spd_change_threshold_;
+    float max_1d_spd_;
 };
 
 }

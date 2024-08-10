@@ -1,7 +1,6 @@
 #pragma once
 
-#include "common/constants.h"
-#include "include/doubly_linked_list.h"
+#include "doubly_linked_list.h"
 
 #include "particle.h"
 
@@ -10,8 +9,8 @@ namespace sim {
 class FixedGrid
 {
 public:
-    FixedGrid() = default;
-    FixedGrid(const Vec2f& top_left, const Vec2f& bottom_right);
+    FixedGrid() = delete;
+    FixedGrid(int max_particle_radius, const Vec2f& top_left, const Vec2f& bottom_right);
 
     void add(Particle& entity);
     void remove(Particle& entity);
@@ -31,8 +30,7 @@ private:
 
     int rows_{0};
     int cols_{0};
-
-    static constexpr int CELL_SIZE = static_cast<int>(2 * MAX_RADIUS);
+    int m_cell_size{0};
 
 };
 

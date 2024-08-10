@@ -2,6 +2,7 @@
     "name" : "particle-simulation",
     "version-string" : "1.0.0",
     "dependencies" : [
-        "sfml"
+        "sfml",
+        "nlohmann-json"
     ]
 }

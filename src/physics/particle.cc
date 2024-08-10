@@ -8,17 +8,17 @@ namespace sim {
 
 int Particle::nextID = 0;
 
-Particle::Particle(const Vec2f& position, float radius)
-    : position_{position}
-    , acceleration_{0, G}
+Particle::Particle(const Vec2f& position, float radius, float max_1d_spd)
+    : id_{nextID++}
+    , position_{position}
     , radius_{radius}
-    , id_{nextID++}
+    , max_spd_{max_1d_spd}
 {
 }
 
 void Particle::setVelocity(Vec2f new_velocity)
 {
-    new_velocity.clamp({-MAX_VEL, MAX_VEL}, {-MAX_VEL, MAX_VEL});
+    new_velocity.clamp({-max_spd_, max_spd_}, {-max_spd_, max_spd_});
     velocity_ = new_velocity;
 }
 
@@ -31,16 +31,16 @@ const Vec2f& Particle::nextPosition(float timestep)
     return position();
 }
 
-void Particle::rebound(int axis)
+void Particle::rebound(int axis, float damp_bounce, float threshold)
 {
     const float speed_along_axis = std::abs(velocity_[axis]);
-    const float delta = speed_along_axis * (1 - DAMP_WALL);
+    const float delta = speed_along_axis * (1 - damp_bounce);
     const float rel_delta = delta / speed_along_axis;
 
-    if (rel_delta > 0.01f)
+    if (rel_delta > threshold)
     {
         velocity_.reflect(axis);
-        velocity_.dilate(axis, DAMP_WALL);
+        velocity_.dilate(axis, damp_bounce);
     }
     else
     {

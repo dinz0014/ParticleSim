@@ -1,17 +1,28 @@
 #pragma once
+#include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
+#include "types.h"
 
 class ParticleSimApp
 {
 public:
+    using json = nlohmann::json;
+
+    void ReadConfig(const std::string& filename);
+
     void Run();
 
 private:
-    static constexpr int TARGET_FPS = 60;
+    sim::ValidationResult ValidateConfig();
+    void LoadConfig();
+
+private:
+    json cfg_;
+
     static constexpr int WINDOW_WIDTH = 1920;
     static constexpr int WINDOW_HEIGHT = 1080;
 
-    static constexpr float TIMESTEP = 1.0f / TARGET_FPS;
-    static constexpr uint8_t SUBSTEPS = 16;
-    static constexpr float dt = TIMESTEP / static_cast<float>(SUBSTEPS);
+    int target_fps_;
+    int substeps_;
+    float dt_;
 };

@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-#include "common/constants.h"
 #include "common/vector.h"
 
 #include "container.h"
@@ -20,7 +19,7 @@ public:
 
     using id_type = uint16_t;
 
-    Particle(const Vec2f& position, float radius = 10.0f);
+    Particle(const Vec2f& position, float radius = 10.0f, float max_1d_spd = 1000.0f);
 
     const Vec2f& nextPosition(float timestep);
 
@@ -46,7 +45,7 @@ public:
         return velocity_;
     }
 
-    void rebound(int axis);
+    void rebound(int axis, float damp_bounce, float threshold);
 
     void setPosition(const Vec2f& new_position)
     {
@@ -84,8 +83,16 @@ public:
     {
         auto [dx, dy] = delta_vel;
         auto rel_delta = Vec2f{std::abs(dx), std::abs(dy)};
-        rel_delta.x /= std::abs(velocity_.x);
-        rel_delta.y /= std::abs(velocity_.y);
+
+        if (velocity_.x != 0)
+        {
+            rel_delta.x /= std::abs(velocity_.x);
+        }
+
+        if (velocity_.y != 0)
+        {
+            rel_delta.y /= std::abs(velocity_.y);
+        }
 
         if (rel_delta.x < 0.001f)
         {
@@ -111,14 +118,18 @@ public:
     }
 
 private:
+    int id_;
+
     Vec2f position_;
-    Vec2f prev_position_;
     Vec2f acceleration_;
     Vec2f velocity_;
+
     float radius_;
     float mass_;
+
     Vec2i region_;
-    int id_;
+
+    float max_spd_;
 };
 
 }

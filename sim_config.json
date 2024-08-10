@@ -1,0 +1,26 @@
+{
+    "app" : {
+        "solver_substeps" : 16,
+        "target_fps" : 60
+    },
+
+    "renderer" : {
+        "particle_colour" : {
+            "r" : 0,
+            "g" : 255,
+            "b" : 255,
+            "a" : 255
+        },
+        "container_wall_thickness" : 2.0
+    },
+
+    "particle_manager" : {
+        "particle" : {
+            "radius" : 10.0,
+            "rel_rb_spd_change_threshold" : 0.01
+        },
+        "grav_accel" : 800.0,
+        "wall_collision_damping_constant" : 0.85,
+        "max_1d_spd" : 900.0
+    }
+}

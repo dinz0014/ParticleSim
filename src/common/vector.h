@@ -136,8 +136,8 @@ public:
 
     void clamp(MinMaxLimits x_limits, MinMaxLimits y_limits)
     {
-        const auto& [x_min, x_max] = x_limits;
-        const auto& [y_min, y_max] = y_limits;
+        const auto [x_min, x_max] = x_limits;
+        const auto [y_min, y_max] = y_limits;
 
         this->x = std::clamp(this->x, x_min, x_max);
         this->y = std::clamp(this->y, y_min, y_max);

@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Window/Event.hpp>
-#include "common/constants.h"
+
 #include "common/vector.h"
 
 namespace sim {
@@ -53,11 +53,9 @@ public:
     using BoundsType = std::pair<Vec2f, Vec2f>;
     BoundsType getBounds(float margin = 0.0f);
 
-    void handleResize(sf::Event::KeyEvent& key_event);
     bool intersects(float x, float y);
 
 private:
-    static constexpr unsigned int sizeTick = 2 * static_cast<unsigned int>(MAX_RADIUS);
     Vec2u size_{0u, 0u};
     Vec2u default_size_{0u, 0u};
     Vec2f position_{0.0f, 0.0f};

@@ -2,19 +2,20 @@
 
 namespace sim {
 
-FixedGrid::FixedGrid(const Vec2f& top_left, const Vec2f& bottom_right)
+FixedGrid::FixedGrid(int max_particle_radius, const Vec2f& top_left, const Vec2f& bottom_right)
     : top_left_{top_left}
     , bottom_right_{bottom_right}
+    , m_cell_size{2 * max_particle_radius}
 {
-    rows_ = static_cast<int>(( bottom_right_.y - top_left_.y ) / CELL_SIZE);
-    cols_ = static_cast<int>(( bottom_right_.x - top_left_.x ) / CELL_SIZE);
+    rows_ = static_cast<int>(( bottom_right_.y - top_left_.y ) / m_cell_size);
+    cols_ = static_cast<int>(( bottom_right_.x - top_left_.x ) / m_cell_size);
     grid_.resize(rows_ * cols_);
 }
 
 void FixedGrid::reset()
 {
-    rows_ = static_cast<int>(( bottom_right_.y - top_left_.y ) / CELL_SIZE);
-    cols_ = static_cast<int>(( bottom_right_.x - top_left_.x ) / CELL_SIZE);
+    rows_ = static_cast<int>(( bottom_right_.y - top_left_.y ) / m_cell_size);
+    cols_ = static_cast<int>(( bottom_right_.x - top_left_.x ) / m_cell_size);
     grid_.clear();
     grid_.resize(rows_ * cols_);
 }
@@ -22,8 +23,8 @@ void FixedGrid::reset()
 Vec2i FixedGrid::getCell(const Vec2f& position)
 {
     const Vec2f rel_pos = position - top_left_;
-    const int c = static_cast<int>(rel_pos.x / CELL_SIZE);
-    const int r = static_cast<int>(rel_pos.y / CELL_SIZE);
+    const int c = static_cast<int>(rel_pos.x / m_cell_size);
+    const int r = static_cast<int>(rel_pos.y / m_cell_size);
     return Vec2i{r, c};
 }
 

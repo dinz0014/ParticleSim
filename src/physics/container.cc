@@ -13,24 +13,12 @@ Container::BoundsType Container::getBounds(float margin)
 {
     // Container is centered, so we add/subtract half the size to get bounds
     float x_min, x_max, y_min, y_max;
-    const Vec2f offset = Vec2f::from(size_ / 2u);
+    const Vec2f offset{size_.x / 2.0f, size_.y / 2.0f};
     const Vec2f margin_vec{margin, margin};
     assign_piecewise(position_ - offset + margin_vec, x_min, y_min);
     assign_piecewise(position_ + offset - margin_vec, x_max, y_max);
 
     return {Vec2f{x_min, x_max}, Vec2f{y_min, y_max}};
-}
-
-void Container::handleResize(sf::Event::KeyEvent& key_event)
-{
-    switch(key_event.code)
-    {
-        case sf::Keyboard::Up    : size_[1] += sizeTick; break;
-        case sf::Keyboard::Right : size_[0] += sizeTick; break;
-        case sf::Keyboard::Down  : size_[1] -= sizeTick; break;
-        case sf::Keyboard::Left  : size_[0] -= sizeTick; break;
-        default: break;
-    }
 }
 
 bool Container::intersects(float x, float y)

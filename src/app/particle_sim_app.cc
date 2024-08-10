@@ -1,3 +1,5 @@
+#include <fstream>
+#include <iostream>
 #include <numeric>
 
 #include "common/utils.h"
@@ -5,6 +7,64 @@
 #include "render/renderer.h"
 
 #include "particle_sim_app.h"
+
+sim::ValidationResult ParticleSimApp::ValidateConfig()
+{
+    if (!cfg_.contains("app"))
+    {
+        return "app config is required, but absent";
+    }
+
+    if (!cfg_.contains("particle_manager"))
+    {
+        return "particle_manager config is required, but absent";
+    }
+
+    const json& app_cfg = cfg_["app"];
+
+    if (!app_cfg.contains("solver_substeps"))
+    {
+        return "solver_substeps field is required, but absent";
+    }
+
+    if (!app_cfg["solver_substeps"].is_number_integer() && !(app_cfg["solver_substeps"] > 0))
+    {
+        return "solver_substeps must be a positive integer";
+    }
+
+    if (app_cfg.contains("target_fps") && !app_cfg["target_fps"].is_number_integer() && !(app_cfg["target_fps"] > 0))
+    {
+        return "target_fps must be a positive integer";
+    }
+
+    return "";
+}
+
+void ParticleSimApp::ReadConfig(const std::string& filename)
+{
+    std::ifstream config_ifs(filename);
+    cfg_ = json::parse(config_ifs);
+    if (const auto err = ValidateConfig(); !err.empty())
+    {
+        throw std::runtime_error(err);
+    }
+
+    LoadConfig();
+}
+
+void ParticleSimApp::LoadConfig()
+{
+    const json& app_cfg = cfg_["app"];
+    target_fps_ = get(app_cfg, "target_fps", 60);
+    substeps_ = get(app_cfg, "solver_substeps", 16);
+    dt_ = (1.0f / static_cast<float>(target_fps_)) / static_cast<float>(substeps_);
+
+    // Insert empty renderer config if there is no renderer config for convenience
+    if (!cfg_.contains("renderer"))
+    {
+        cfg_["renderer"] = {};
+    }
+}
 
 void ParticleSimApp::Run()
 {
@@ -14,10 +74,23 @@ void ParticleSimApp::Run()
     // Center the container
     container.centerInside({0.0f, static_cast<float>(WINDOW_WIDTH)}, {0.0f, static_cast<float>(WINDOW_HEIGHT)});
 
-    sim::Renderer renderer{window};
-    sim::ParticleManager manager{container};
+    if (const auto err = sim::Renderer::ValidateConfig(cfg_["renderer"]); !err.empty())
+    {
+        throw std::runtime_error(err);
+    }
 
-    window.setFramerateLimit(TARGET_FPS);
+    const json& render_cfg = cfg_["renderer"];
+    sim::Renderer renderer{render_cfg, window};
+
+    if (const auto err = sim::ParticleManager::ValidateConfig(cfg_["particle_manager"]); !err.empty())
+    {
+        throw std::runtime_error(err);
+    }
+
+    const json& manager_cfg = cfg_["particle_manager"];
+    sim::ParticleManager manager{manager_cfg, container};
+
+    window.setFramerateLimit(target_fps_);
     bool left_mouse_held = false;
 
     while (window.isOpen())
@@ -56,9 +129,9 @@ void ParticleSimApp::Run()
             }
         }
 
-        for (uint8_t i = SUBSTEPS; i > 0; i--)
+        for (uint8_t i = substeps_; i > 0; i--)
         {
-            manager.updateParticles(dt);
+            manager.updateParticles(dt_);
         }
 
         window.clear();
